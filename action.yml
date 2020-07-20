@@ -1,4 +1,4 @@
-name: 'Scalway scw CLI'
+name: 'Scaleway scw CLI'
 description: 'Use scw to manage your Scaleway resources.'
 author: 'Jawher Moussa'
 branding:

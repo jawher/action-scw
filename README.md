@@ -1,6 +1,6 @@
 # GitHub Action for Scaleway
 
-This action enables you to interact with [Scaleway](https://www.scaleway.com/) services via [the `scw` v2 command-line client](https://github.com/scaleway/scaleway-cli/tree/v2).
+This action enables you to interact with [Scaleway](https://www.scaleway.com/) services via [the `scw` v2 command-line client](https://github.com/scaleway/scaleway-cli/).
 
 ## Usage
 
@@ -11,7 +11,7 @@ Here's an example which starts a `DEV1-S` instance in the `fr-par-1` region:
 
 ```yaml
     - name: Create a new instance
-        uses: jawher/action-scw@master
+        uses: jawher/action-scw@v2.0.0
         env:
           SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
           SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
@@ -27,7 +27,7 @@ Here's an example which starts a `DEV1-S` instance in the `fr-par-1` region:
         run: ...
 
       - name: Delete instance
-        uses: jawher/action-scw@master
+        uses: jawher/action-scw@v2.0.0
         env:
           SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
           SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
