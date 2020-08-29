@@ -11,8 +11,13 @@ set -euo pipefail
 export SCW_DEFAULT_ORGANIZATION_ID="${SCW_ORGANIZATION_ID}"
 export SCW_DEFAULT_ZONE="${SCW_ZONE}"
 
+# Only export SCW_DEFAULT_REGION if explicitly set by user
+if [ -n "${SCW_REGION}" ]; then
+  export SCW_DEFAULT_REGION="${SCW_REGION}"
+fi
+
 # Run and preserve output for consumption by downstream actions
 /scw "$@" >"${GITHUB_WORKSPACE}/scw.output"
 
 # Write output to STDOUT
-cat "${GITHUB_WORKSPACE}/scw.output"
+cat "${GITHUB_WORKSPACE}/scw.output".github/workflows
