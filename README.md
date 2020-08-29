@@ -48,7 +48,7 @@ Here's an example which starts a `DEV1-S` instance in the `fr-par-1` region:
 
 We provide defaults for the following, these may also be overridden:
 
-- `SCW_REGION`- **Optional**: Region to target, one of `fr-par` or `nl-ams`. If unset, it will be guessed by the `scw` cli from the zone: `fr-par-1` -> `fr-par`, `nl-ams-1` -> `nl-ams`, ...
+- `SCW_REGION`- **Optional**: Region to target, one of `fr-par` or `nl-ams`. If unset, it will be guessed by the `scw` CLI from the zone: `fr-par-1` -> `fr-par`, `nl-ams-1` -> `nl-ams`, ...
 - `SCW_ZONE`- **Required**: Zone to target, one of `fr-par-1` or `nl-ams-1`
 
 ## Versioning
@@ -56,13 +56,13 @@ We provide defaults for the following, these may also be overridden:
 This action uses the following versioning scheme:
 
 ```
-jawher/action-scw@v{x.y.z}-{p}
+jawher/action-scw@v{M.m.p}-{a}
 ```
 
 Where:
 
-* `{x.y.z}` is the scw CLI version
-* `{p}` is the action single version number: there may be multiple versions of this action for a single CLI version, e.g. `v2.0.0-1` uses the same scw cli `v2.0.0` as before, but adds support for the newly added region parameter.
+* `{M.m.p}` is the `scw` CLI version: Major, Minor and patch
+* `{a}` is the action single version number: there may be multiple versions of this action for a single CLI version, e.g. `v2.0.0-1` uses the same scw CLI `2.0.0` as before, but adds support for the newly added region parameter.
 
 ## License
 
