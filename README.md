@@ -6,12 +6,13 @@ This action enables you to interact with [Scaleway](https://www.scaleway.com/) s
 
 1. Configure the action with the 4 required environments variables
 2. Pass the command to execute using `scw`
+3. Every step invoking this action writes the stdout to `${GITHUB_WORKSPACE}/scw.output`. You can then use this file in later steps. Please note that subsequent calls to this action will overwrite this file, so you might want to copy it to another file if you'll still need it later.
 
 Here's an example which starts a `DEV1-S` instance in the `fr-par-1` region:
 
 ```yaml
     - name: Create a new instance
-        uses: jawher/action-scw@v2.0.0
+        uses: jawher/action-scw@v2.0.0-1
         env:
           SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
           SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
@@ -27,7 +28,7 @@ Here's an example which starts a `DEV1-S` instance in the `fr-par-1` region:
         run: ...
 
       - name: Delete instance
-        uses: jawher/action-scw@v2.0.0
+        uses: jawher/action-scw@v2.0.0-1
         env:
           SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
           SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
@@ -37,19 +38,31 @@ Here's an example which starts a `DEV1-S` instance in the `fr-par-1` region:
           args: instance server delete server-id=${{ env.INSTANCE_ID }} with-ip=true force-shutdown=true
 ```
 
-
 ### Secrets
 
 - `SCW_ACCESS_KEY` – **Required**: a Scaleway API token ([more info](https://www.scaleway.com/en/docs/generate-an-api-token/)).
 - `SCW_SECRET_KEY` – **Required**: Scaleway API token ([more info](https://www.scaleway.com/en/docs/generate-an-api-token/)).
 - `SCW_ORGANIZATION_ID` – **Required**: A Scaleway organization id
 
-
 ### Environment variables
 
 We provide defaults for the following, these may also be overridden:
 
+- `SCW_REGION`- **Optional**: Region to target, one of `fr-par` or `nl-ams`. If unset, it will be guessed from the zone: `fr-par-1` -> `fr-par`, `nl-ams-1` -> `nl-ams`, ...
 - `SCW_ZONE`- **Required**: Zone to target, one of `fr-par-1` or `nl-ams-1`
+
+## Versioning
+
+This action uses the following versioning scheme:
+
+```
+jawher/action-scw@v{x.y.z}-{p}
+```
+
+Where:
+
+* `{x.y.z}` is the scw CLI version
+* `{p}` is the action single version number: there may be multiple versions of this action for a single CLI version, e.g. `v2.0.0-1` uses the same scw cli `v2.0.0` as before, but adds support for the newly added region parameter.
 
 ## License
 
