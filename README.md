@@ -48,7 +48,7 @@ Here's an example which starts a `DEV1-S` instance in the `fr-par-1` region:
 
 We provide defaults for the following, these may also be overridden:
 
-- `SCW_REGION`- **Optional**: Region to target, one of `fr-par` or `nl-ams`. If unset, it will be guessed from the zone: `fr-par-1` -> `fr-par`, `nl-ams-1` -> `nl-ams`, ...
+- `SCW_REGION`- **Optional**: Region to target, one of `fr-par` or `nl-ams`. If unset, it will be guessed by the `scw` cli from the zone: `fr-par-1` -> `fr-par`, `nl-ams-1` -> `nl-ams`, ...
 - `SCW_ZONE`- **Required**: Zone to target, one of `fr-par-1` or `nl-ams-1`
 
 ## Versioning
