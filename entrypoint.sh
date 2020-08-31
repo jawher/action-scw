@@ -6,6 +6,7 @@ set -euo pipefail
 : "${SCW_SECRET_KEY?SCW_SECRET_KEY environment variable must be set}"
 : "${SCW_ORGANIZATION_ID?SCW_ORGANIZATION_ID environment variable must be set}"
 : "${SCW_ZONE?SCW_ZONE environment variable must be set}"
+: "${SCW_REGION:=}"
 
 # Map env vars to what scw expect
 export SCW_DEFAULT_ORGANIZATION_ID="${SCW_ORGANIZATION_ID}"
