@@ -21,4 +21,4 @@ fi
 /scw "$@" >"${GITHUB_WORKSPACE}/scw.output"
 
 # Write output to STDOUT
-cat "${GITHUB_WORKSPACE}/scw.output".github/workflows
+cat "${GITHUB_WORKSPACE}/scw.output"
