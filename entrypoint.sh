@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -euo pipefail
+set -euo
 
 : "${SCW_ACCESS_KEY?SCW_ACCESS_KEY environment variable must be set}"
 : "${SCW_SECRET_KEY?SCW_SECRET_KEY environment variable must be set}"
