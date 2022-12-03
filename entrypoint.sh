@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/usr/bin/env ash
+# shellcheck shell=dash
 
 set -euo pipefail
 
