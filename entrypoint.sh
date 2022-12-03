@@ -1,6 +1,7 @@
-#!/bin/sh
+#!/usr/bin/env ash
+# shellcheck shell=dash
 
-set -euo
+set -euo pipefail
 
 : "${SCW_ACCESS_KEY?SCW_ACCESS_KEY environment variable must be set}"
 : "${SCW_SECRET_KEY?SCW_SECRET_KEY environment variable must be set}"
