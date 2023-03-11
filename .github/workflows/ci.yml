@@ -36,5 +36,8 @@ jobs:
         with:
           args: instance server list -ojson
 
+      - name: Cat output
+        run: cat "${GITHUB_WORKSPACE}/scw.output"
+
       - name: Check output
         run: cat "${GITHUB_WORKSPACE}/scw.output" | jq -er '.[]'
