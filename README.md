@@ -12,7 +12,7 @@ Here's an example which starts a `DEV1-S` instance in the `fr-par-1` region:
 
 ```yaml
     - name: Create a new instance
-        uses: jawher/action-scw@v2.12.0
+        uses: jawher/action-scw@v2.16.1
         env:
           SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
           SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
@@ -28,7 +28,7 @@ Here's an example which starts a `DEV1-S` instance in the `fr-par-1` region:
         run: ...
 
       - name: Delete instance
-        uses: jawher/action-scw@v2.12.0
+        uses: jawher/action-scw@v2.16.1
         env:
           SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
           SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
@@ -62,7 +62,7 @@ jawher/action-scw@v{M.m.p}-{a}
 Where:
 
 * `{M.m.p}` is the `scw` CLI version: Major, Minor and patch
-* `{a}` is the action single version number: there may be multiple versions of this action for a single CLI version, e.g. `v2.12.0` uses the same scw CLI `2.4.4` as before, but adds support for the newly added region parameter.
+* `{a}` is the action single version number: there may be multiple versions of this action for a single CLI version, e.g. `v2.16.1` uses the same scw CLI `2.4.4` as before, but adds support for the newly added region parameter.
 
 ## License
 
