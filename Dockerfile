@@ -1,15 +1,13 @@
-FROM scaleway/cli:v2.12.0 as upstream
+FROM scaleway/cli:v2.16.1 as upstream
 
-FROM alpine:3.17
+FROM alpine:3.18
 
 COPY --from=upstream /scw /scw
 
-RUN apk add --no-cache curl \
-    && mkdir /lib64 \
-    && ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2
+RUN apk add --no-cache curl
 
 LABEL "name"="action-scw"
-LABEL "version"="2.12.0"
+LABEL "version"="2.16.1"
 LABEL "maintainer"="Jawher Moussa"
 LABEL "repository"="https://github.com/jawher/action-scw"
 LABEL "homepage"="https://github.com/jawher/action-scw"
