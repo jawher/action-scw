@@ -62,7 +62,7 @@ jawher/action-scw@v{M.m.p}-{a}
 Where:
 
 * `{M.m.p}` is the `scw` CLI version: Major, Minor and patch
-* `{a}` is the action single version number: there may be multiple versions of this action for a single CLI version, e.g. `v2.16.1` uses the same scw CLI `2.4.4` as before, but adds support for the newly added region parameter.
+* `{a}` is the action single version number: there may be multiple versions of this action for a single CLI version, e.g. `v2.4.4-1` uses the same scw CLI `2.4.4` as before, but adds support for the newly added region parameter.
 
 ## License
 
