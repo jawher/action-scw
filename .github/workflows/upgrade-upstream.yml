@@ -1,0 +1,63 @@
+name: Check for scw cli updates
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *" # run at midnight
+
+jobs:
+  check-for-scw-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Get latest release
+        id: latest_release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: { tag_name } } = await github.rest.repos.getLatestRelease({
+              owner: 'scaleway',
+              repo: 'scaleway-cli'
+            });
+            return tag_name.replace(/^v/, ''); // remove "v" prefix
+          result-encoding: string
+
+      - name: Read .upstream-version
+        id: upstream_version
+        run: echo "version=$(cat .upstream-version)" >> $GITHUB_OUTPUT
+
+      - name: Compare versions and create a PR if necessary
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GH_API_PAT }}
+          script: |
+            const { execSync } = require('child_process');
+            const octokit = github;
+            const latest_version = "${{ steps.latest_release.outputs.result }}";
+            const current_version = "${{ steps.upstream_version.outputs.version }}";
+
+            if (latest_version !== current_version) {
+              execSync(`hack/set-upstream.sh ${current_version} ${latest_version}`);
+
+              // commit changes
+              execSync('git config --local user.email "action@github.com"');
+              execSync('git config --local user.name "GitHub Action"');
+              execSync('git add .');
+              execSync(`git commit -m "Upgrade to scw-cli ${latest_version}"`);
+
+              // push changes to a new branch
+              const branch_name = `upgrade-upstream/${latest_version}`;
+              execSync(`git checkout -b ${branch_name}`);
+              execSync(`git push origin ${branch_name}`);
+
+              // create a pull request
+              await octokit.rest.pulls.create({
+                owner: 'jawher',
+                repo: 'private-action-scw',
+                title: `Upgrade to scw-cli ${latest_version}`,
+                head: branch_name,
+                base: 'master',
+              });
+            }
