@@ -1,6 +1,6 @@
 # GitHub Action for Scaleway
 
-This action enables you to interact with [Scaleway](https://www.scaleway.com/) services via [the `scw` v2 command-line client](https://github.com/scaleway/scaleway-cli/).
+This action enables you to interact with [Scaleway](https://www.scaleway.com/) services via [the `scw` command-line client](https://github.com/scaleway/scaleway-cli/).
 
 ## Usage
 
