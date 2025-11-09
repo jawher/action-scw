@@ -53,11 +53,22 @@ jobs:
               execSync(`git push origin ${branch_name}`);
 
               // create a pull request
-              await octokit.rest.pulls.create({
+              const { data: pr } = await octokit.rest.pulls.create({
                 owner: 'jawher',
                 repo: 'action-scw',
                 title: `Upgrade to scw-cli ${latest_version}`,
                 head: branch_name,
                 base: 'master',
+                body: `Automated upgrade to scw-cli version ${latest_version}\n\nThis PR will be automatically merged once CI passes.`,
               });
+
+              // add label to identify automated upgrade PRs
+              await octokit.rest.issues.addLabels({
+                owner: 'jawher',
+                repo: 'action-scw',
+                issue_number: pr.number,
+                labels: ['automated-upgrade']
+              });
+
+              console.log(`Created PR #${pr.number} for upgrade to ${latest_version}`);
             }

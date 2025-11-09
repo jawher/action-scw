@@ -1,0 +1,131 @@
+name: Auto-release on upgrade
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  auto-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch all history for proper changelog
+
+      - name: Check if upgrade commit
+        id: check_upgrade
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const commit = context.payload.head_commit;
+            const message = commit.message;
+
+            // Check if this is an upgrade commit
+            const upgradePattern = /Upgrade to scw-cli (\d+\.\d+\.\d+)/;
+            const match = message.match(upgradePattern);
+
+            if (match) {
+              const version = match[1];
+              console.log(`Detected upgrade commit for version ${version}`);
+              return { is_upgrade: true, version: version };
+            }
+
+            console.log('Not an upgrade commit');
+            return { is_upgrade: false };
+
+      - name: Read current version
+        if: fromJSON(steps.check_upgrade.outputs.result).is_upgrade
+        id: version
+        run: |
+          VERSION=$(cat .upstream-version | tr -d '\n')
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Check if release exists
+        if: fromJSON(steps.check_upgrade.outputs.result).is_upgrade
+        id: check_release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const version = "${{ steps.version.outputs.version }}";
+            const tag = `v${version}`;
+
+            try {
+              await github.rest.repos.getReleaseByTag({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag: tag
+              });
+              console.log(`Release ${tag} already exists`);
+              return true;
+            } catch (error) {
+              if (error.status === 404) {
+                console.log(`Release ${tag} does not exist`);
+                return false;
+              }
+              throw error;
+            }
+
+      - name: Generate changelog
+        if: fromJSON(steps.check_upgrade.outputs.result).is_upgrade && steps.check_release.outputs.result == 'false'
+        id: changelog
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const version = "${{ steps.version.outputs.version }}";
+
+            // Get recent commits to include in changelog
+            const { data: commits } = await github.rest.repos.listCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 10
+            });
+
+            // Find upgrade-related commits
+            const upgradeCommits = commits
+              .filter(c => c.commit.message.includes('Upgrade to scw-cli'))
+              .slice(0, 5);
+
+            let changelog = `## scw-cli ${version}\n\n`;
+            changelog += `This release updates the Scaleway CLI to version ${version}.\n\n`;
+            changelog += `### What's Changed\n`;
+            changelog += `- Updated scw-cli from previous version to ${version}\n\n`;
+            changelog += `### Recent Releases\n`;
+
+            upgradeCommits.forEach(commit => {
+              const match = commit.commit.message.match(/Upgrade to scw-cli (\d+\.\d+\.\d+)/);
+              if (match) {
+                const commitVersion = match[1];
+                const shortSha = commit.sha.substring(0, 7);
+                changelog += `- ${commitVersion} (${shortSha})\n`;
+              }
+            });
+
+            changelog += `\n### Upstream Release\n`;
+            changelog += `See the [Scaleway CLI ${version} release notes](https://github.com/scaleway/scaleway-cli/releases/tag/v${version}) for details.\n`;
+
+            return changelog;
+          result-encoding: string
+
+      - name: Create release
+        if: fromJSON(steps.check_upgrade.outputs.result).is_upgrade && steps.check_release.outputs.result == 'false'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GH_API_PAT }}
+          script: |
+            const version = "${{ steps.version.outputs.version }}";
+            const tag = `v${version}`;
+            const changelog = ${{ steps.changelog.outputs.result }};
+
+            const { data: release } = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: tag,
+              name: `scw-cli ${version}`,
+              body: changelog,
+              draft: false,
+              prerelease: false
+            });
+
+            console.log(`Created release: ${release.html_url}`);
