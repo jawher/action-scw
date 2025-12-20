@@ -1,0 +1,78 @@
+name: Auto-merge upgrade PRs
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Get PR details
+        id: pr
+        uses: actions/github-script@v6
+        with:
+          script: |
+            // Get PRs associated with this workflow run
+            const { data: pullRequests } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              head: `${context.repo.owner}:${context.payload.workflow_run.head_branch}`
+            });
+
+            if (pullRequests.length === 0) {
+              console.log('No open PR found for this branch');
+              return null;
+            }
+
+            const pr = pullRequests[0];
+
+            // Only auto-merge if the branch name starts with 'upgrade-upstream/'
+            if (!pr.head.ref.startsWith('upgrade-upstream/')) {
+              console.log(`Branch ${pr.head.ref} is not an upgrade PR`);
+              return null;
+            }
+
+            console.log(`Found PR #${pr.number} for branch ${pr.head.ref}`);
+
+            return {
+              number: pr.number,
+              branch: pr.head.ref
+            };
+
+      - name: Auto-merge PR
+        if: steps.pr.outputs.result != 'null'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GH_API_PAT }}
+          script: |
+            const prData = ${{ steps.pr.outputs.result }};
+
+            if (!prData) {
+              console.log('No PR to merge');
+              return;
+            }
+
+            console.log(`Auto-merging PR #${prData.number}`);
+
+            await github.rest.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prData.number,
+              merge_method: 'merge'
+            });
+
+            console.log(`PR #${prData.number} merged successfully`);
+
+            // Delete the branch after merge
+            await github.rest.git.deleteRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `heads/${prData.branch}`
+            });
+
+            console.log(`Branch ${prData.branch} deleted`);

@@ -1,0 +1,98 @@
+name: Auto-create release
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '.upstream-version'
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Read version
+        id: version
+        run: echo "version=$(cat .upstream-version)" >> $GITHUB_OUTPUT
+
+      - name: Check if release exists
+        id: check_release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const version = "${{ steps.version.outputs.version }}";
+            const tag = `v${version}`;
+
+            try {
+              await github.rest.repos.getReleaseByTag({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag: tag
+              });
+              console.log(`Release ${tag} already exists`);
+              return true;
+            } catch (error) {
+              if (error.status === 404) {
+                console.log(`Release ${tag} does not exist`);
+                return false;
+              }
+              throw error;
+            }
+          result-encoding: string
+
+      - name: Get previous tag
+        if: steps.check_release.outputs.result == 'false'
+        id: previous_tag
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const version = "${{ steps.version.outputs.version }}";
+            const currentTag = `v${version}`;
+
+            // Get all tags
+            const { data: tags } = await github.rest.repos.listTags({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+
+            // Find the previous tag (first tag that's not the current one)
+            const previousTag = tags.find(tag => tag.name !== currentTag);
+
+            return previousTag ? previousTag.name : '';
+          result-encoding: string
+
+      - name: Create release
+        if: steps.check_release.outputs.result == 'false'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GH_API_PAT }}
+          script: |
+            const version = "${{ steps.version.outputs.version }}";
+            const tag = `v${version}`;
+            const previousTag = "${{ steps.previous_tag.outputs.result }}";
+
+            console.log(`Creating release ${tag}`);
+
+            // Generate release notes using GitHub API
+            const { data: releaseNotes } = await github.rest.repos.generateReleaseNotes({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: tag,
+              previous_tag_name: previousTag || undefined
+            });
+
+            await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: tag,
+              name: tag,
+              body: releaseNotes.body,
+              draft: false,
+              prerelease: false
+            });
+
+            console.log(`Release ${tag} created successfully`);
