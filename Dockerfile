@@ -2,7 +2,7 @@ FROM scaleway/cli:v2.65.1 as upstream
 
 FROM alpine:3.18
 
-COPY --from=upstream /scw /scw
+COPY --from=upstream /usr/bin/scw /scw
 
 RUN apk add --no-cache curl
 
